@@ -3,14 +3,12 @@ import './App.css';
 import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import { useEffect, useState } from 'react';
 import Geocode from 'react-geocode';
-import {GoogleMapProvider, useGoogleMap,} from '@ubilabs/google-maps-react-hooks';
-
 
 
 const containerStyle = {
-  position : "relative",
-  width: "600px",
-  height: "600px"
+  position: "relative",
+  width: "100vw",
+  height: "100vh"
 };
 
 const dabasCoord = {
@@ -19,12 +17,12 @@ const dabasCoord = {
 };
 
 const onLiveITCoord = {
-  lat : 47.1916,
-  lng : 19.32848
+  lat: 47.1916,
+  lng: 19.32848
 }
 
 const APIKEY = process.env.REACT_APP_GOOGLEMAPS_API_KEY
-const functioningAPIKEY= 'AIzaSyBpPI_5Q2VofDHHrePZzg0oNe4D2y_aGKE';
+const functioningAPIKEY = 'AIzaSyBpPI_5Q2VofDHHrePZzg0oNe4D2y_aGKE';
 
 Geocode.setApiKey(functioningAPIKEY);
 Geocode.setLocationType('APPROXIMATE');
@@ -35,68 +33,75 @@ Geocode.enableDebug();
 
 function App() {
 
-  
+
   const [center, setCenter] = useState(dabasCoord);
   const [marker, setMarker] = useState(onLiveITCoord);
-  const [adress, setAdress]= useState('');
+  const [adress, setAdress] = useState('');
   const [coordinates, setCoordinates] = useState(onLiveITCoord);
-  const [zoom, setZoom] = useState(7)
+  const [zoom, setZoom] = useState(9)
 
-  const testMarkerChange = ()=>{
-    setCoordinates({lat : 46.875058, lng : 17.685025})
+  const testMarkerChange = () => {
+    setCoordinates({ lat: 46.875058, lng: 17.685025 })
     console.log(coordinates)
   }
 
-  useEffect (()=>{
+  const testgeoCode = () => {
+    Geocode.fromAddress('Kathmandu').then(
+      (response) => {
+        const { lat, lng } = response.results[0].geometry.location;
+        console.log(lat, lng);
+        setCoordinates({ lat: lat, lng: lng });
+      },
+      (error) => {
+        console.log(error);
+        setCoordinates(onLiveITCoord);
+      }
+    )
+  }
+
+
+  useEffect(() => {
+    
+    
+    setTimeout(()=>{
+      setMarker(coordinates)
+    }, 1000)
+    
    
-    setMarker(coordinates);
-    setCenter(coordinates);
-  
-  },[coordinates])
-
-  
-
- /*  const addAdress = (e)=>{
-    setAdress([...adress], e.target.value)
-  }
-
-  const getCoordinateObject = async (adress) =>{
-
-    try {
-    const response = await Geocode.fromAddress(adress);
-    const coordinates = await response.results[0].geometry.location;
-    console.log(coordinates)
-    setMarker(coordinates)
-  
-    } catch (error) {
-      console.log(error)
-      
-    }
-  }
-   */
-  
-/* 
-  console.log(APIKEY)
-  console.log(functioningAPIKEY) */
+    setTimeout(()=>{
+      setCenter(coordinates)
+      setZoom(10)
+    },1500)
  
-  return (
- <div>
-  
-<button onClick={testMarkerChange}>test</button>
-    <LoadScript
-     // googleMapsApiKey={'AIzaSyBpPI_5Q2VofDHHrePZzg0oNe4D2y_aGKE'} 
-      googleMapsApiKey={functioningAPIKEY} 
 
-    >
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={zoom}
+  }, [coordinates])
+
+
+
+  return (
+
+
+    <div>
+
+
+      <button onClick={testMarkerChange}>test marker</button>
+      <button onClick={testgeoCode}>test geolocation</button>
+
+      <LoadScript
+    
+        googleMapsApiKey={functioningAPIKEY}
+
       >
-       
-        <MarkerF position={marker} />
-      </GoogleMap>
-    </LoadScript>
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={center}
+          zoom={zoom}
+        >
+
+          <MarkerF position={marker} />
+        </GoogleMap>
+      </LoadScript>
+
     </div>
   );
 }
