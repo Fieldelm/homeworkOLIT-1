@@ -1,15 +1,16 @@
 
 import './App.css';
 import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
-import { useState } from 'react';
-
-//https://react-google-maps-api-docs.netlify
+import { useEffect, useState } from 'react';
+import Geocode from 'react-geocode';
+import {GoogleMapProvider, useGoogleMap,} from '@ubilabs/google-maps-react-hooks';
 
 
 
 const containerStyle = {
-  width: '600px',
-  height: '600px'
+  position : "relative",
+  width: "600px",
+  height: "600px"
 };
 
 const dabasCoord = {
@@ -23,23 +24,65 @@ const onLiveITCoord = {
 }
 
 const APIKEY = process.env.REACT_APP_GOOGLEMAPS_API_KEY
-const functioningAPIKEY= 'AIzaSyBpPI_5Q2VofDHHrePZzg0oNe4D2y_aGKE'
+const functioningAPIKEY= 'AIzaSyBpPI_5Q2VofDHHrePZzg0oNe4D2y_aGKE';
+
+Geocode.setApiKey(functioningAPIKEY);
+Geocode.setLocationType('APPROXIMATE');
+Geocode.enableDebug();
+
+
 
 
 function App() {
 
   
-  const [center, setcenter] = useState(dabasCoord);
+  const [center, setCenter] = useState(dabasCoord);
   const [marker, setMarker] = useState(onLiveITCoord);
+  const [adress, setAdress]= useState('');
+  const [coordinates, setCoordinates] = useState(onLiveITCoord);
+  const [zoom, setZoom] = useState(7)
 
-  console.log(marker)
+  const testMarkerChange = ()=>{
+    setCoordinates({lat : 46.875058, lng : 17.685025})
+    console.log(coordinates)
+  }
+
+  useEffect (()=>{
+   
+    setMarker(coordinates);
+    setCenter(coordinates);
+  
+  },[coordinates])
+
+  
+
+ /*  const addAdress = (e)=>{
+    setAdress([...adress], e.target.value)
+  }
+
+  const getCoordinateObject = async (adress) =>{
+
+    try {
+    const response = await Geocode.fromAddress(adress);
+    const coordinates = await response.results[0].geometry.location;
+    console.log(coordinates)
+    setMarker(coordinates)
+  
+    } catch (error) {
+      console.log(error)
+      
+    }
+  }
+   */
+  
 /* 
   console.log(APIKEY)
   console.log(functioningAPIKEY) */
  
   return (
- 
-
+ <div>
+  
+<button onClick={testMarkerChange}>test</button>
     <LoadScript
      // googleMapsApiKey={'AIzaSyBpPI_5Q2VofDHHrePZzg0oNe4D2y_aGKE'} 
       googleMapsApiKey={functioningAPIKEY} 
@@ -48,12 +91,13 @@ function App() {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
-        zoom={9}
+        zoom={zoom}
       >
        
         <MarkerF position={marker} />
       </GoogleMap>
     </LoadScript>
+    </div>
   );
 }
 
