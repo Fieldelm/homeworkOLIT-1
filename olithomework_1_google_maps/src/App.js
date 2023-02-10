@@ -92,7 +92,7 @@ function App() {
 
   return (
 
-    <div>
+   
       <Container fluid >
         <Row className='p-4'>
           <Form onSubmit={findAdress}>
@@ -123,7 +123,7 @@ function App() {
           </LoadScript>
         </Row>
       </Container>
-    </div>
+  
   );
 }
 
