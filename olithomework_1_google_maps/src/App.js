@@ -9,7 +9,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import Alert from 'react-bootstrap/Alert';
 
 
 const containerStyle = {
@@ -29,9 +29,8 @@ const onLiveITCoord = {
 }
 
 const APIKEY = process.env.REACT_APP_GOOGLEMAPS_API_KEY
-const functioningAPIKEY = 'AIzaSyBpPI_5Q2VofDHHrePZzg0oNe4D2y_aGKE';
 
-Geocode.setApiKey(functioningAPIKEY);
+Geocode.setApiKey(APIKEY);
 Geocode.setLocationType('APPROXIMATE');
 Geocode.enableDebug();
 
@@ -42,18 +41,14 @@ function App() {
   const [adress, setAdress] = useState('');
   const [coordinates, setCoordinates] = useState(onLiveITCoord);
   const [zoom, setZoom] = useState(9);
+  const [foundLocation, setFoundLocation] = useState(true);
 
   const updateAdress = (event) => {
     event.preventDefault()
     console.log(event.target.value)
+    
     let newAdress = event.target.value
     setAdress(newAdress)
-    
-   // console.log('Adress:' + adress) 
-  }
-
-  const checkAdress = ()=>{
-    console.log('new adress is set to: ' + adress)
   }
 
   const findAdress = (e) => {
@@ -64,47 +59,33 @@ function App() {
       (response) => {
         const { lat, lng } = response.results[0].geometry.location;
         console.log(lat, lng);
-        setCoordinates({ lat: lat, lng: lng });
+        setFoundLocation(true);
+        setCoordinates({lat,lng});
+        setZoom(6);
+
       },
       (error) => {
         console.log(error);
-        setCoordinates(onLiveITCoord);
+        setFoundLocation(false);
+        setTimeout(() => {
+          setFoundLocation(true)
+        }, 4000)
+      
       }
     )
   }
 
-  const testMarkerChange = () => {
-    setCoordinates({ lat: 46.875058, lng: 17.685025 })
-    console.log(coordinates)
-  }
-
-  const testgeoCode = () => {
-    Geocode.fromAddress('Valencia').then(
-      (response) => {
-        const { lat, lng } = response.results[0].geometry.location;
-        console.log(lat, lng);
-        setCoordinates({ lat: lat, lng: lng });
-      },
-      (error) => {
-        console.log(error);
-        setCoordinates(onLiveITCoord);
-      }
-    )
-  }
-
-
+ 
   useEffect(() => {
-
 
     setTimeout(() => {
       setMarker(coordinates)
     }, 1000)
 
-
     setTimeout(() => {
       setCenter(coordinates)
+      setZoom(9)
     }, 1500)
-
 
   }, [coordinates])
 
@@ -112,22 +93,24 @@ function App() {
   return (
 
     <div>
-      <Container>
-        <Row>
-          <button onClick={testMarkerChange}>test marker</button>
-          <button onClick={testgeoCode}>test geolocation</button>
-
-        </Row>
-        <Row>
+      <Container fluid >
+        <Row className='p-4'>
           <Form onSubmit={findAdress}>
-            <Form.Label>Type in location</Form.Label>
+            {/* <Row className='p-1'> */}
+              <Form.Label>Type in location</Form.Label>
+            {/* </Row> */}
             <Form.Control type='text' placeholder='Adress' onChange={updateAdress}></Form.Control>
-            <Button type='submit'>Find</Button>
+            {foundLocation === true ? <></> : <Alert variant='info'>Sorry, cant find location</Alert>}
+
+            <Row className='p-1 m-0'>
+              <Button type='submit' size='md' >Find</Button>
+            </Row>
+
           </Form>
         </Row>
-        <Row>
+        <Row >
           <LoadScript
-            googleMapsApiKey={functioningAPIKEY}
+            googleMapsApiKey={APIKEY}
           >
             <GoogleMap
               mapContainerStyle={containerStyle}
